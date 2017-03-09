@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/png" href="img/favicon.png" sizes="192x192">
+    <title>失物招領產生器</title>
+
+    <script src="js/fabric.js"></script>
+    
+</head>
+<body>
+    <h1 style="text-align: center">失物招領產生器</h1>
+    <div style="width:500px;height:500px;display:block;margin: 0 auto">
+        <img src="img/TaiwanTechSample.png"  width="500" height="500" style="position:absolute;opacity:.7;z-index:5;pointer-events: none;">
+        <canvas id="c" width="500" height="500" style="z-index:0;position:absolute;"></canvas>
+    </div>
+    
+    <div style="text-align: center;margin: 1em">
+        <input id="imageFile" type="file" multiple size="80"/>
+        <button id="final">取得下載連結</button>
+        <a id="downloadFile" href="#" style="display:none">Click Here To Download</a>
+    </div>
+    
+
+
+
+    <script>
+        var canvas = new fabric.Canvas("c",{ backgroundImage: "img/Transparent.jpg" });
+
+        document.getElementById('imageFile').addEventListener('change', function handleImage(e) {
+            canvas.clear();
+            var reader = new FileReader();
+            reader.onload = function (event){
+                var imgObj = new Image();
+                imgObj.src = event.target.result;
+                imgObj.onload = function () {
+
+                    var ih = imgObj.naturalHeight;
+                    var iw = imgObj.naturalWidth;
+                    var width_ratio  = 250 / iw;
+                    var fw = iw * width_ratio;
+                    var fh = ih*fw/iw;
+
+                    var image = new fabric.Image(imgObj);
+
+                    image.set({
+                        width: fw,
+                        height: fh,
+                        left: 270,
+                        top: 80,
+                        borderColor: 'white',
+                        cornerColor: 'white',
+                        cornerSize: 10,
+                        transparentCorners: false,
+                        lockMovementX: false,
+                        lockMovementY: false,
+                        hasControls: true
+                    });
+
+                    canvas.add(image);
+                    canvas.renderAll();
+                }
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        document.getElementById('final').addEventListener('click', function() {
+            fabric.Image.fromURL("img/TaiwanTechSample.png", function(mainImg) {
+                mainImg.set({
+                    width: canvas.width,
+                    height: canvas.height,
+                    left: 0,
+                    top: 0,
+                    lockMovementX: true,
+                    lockMovementY: true,
+                    hasControls: false
+                });
+                canvas.add(mainImg);
+            });
+
+            canvas.deactivateAll().renderAll();
+
+            document.getElementById('final').style.display = "none";
+            document.getElementById('imageFile').style.display = "none";
+            document.getElementById('downloadFile').style.display = "inline-block";
+        });
+
+        document.getElementById('downloadFile').addEventListener('click', function() {
+            this.href = canvas.toDataURL('jpg');
+            this.download = 'lost.jpg';
+        });
+        
+    </script>
+</body>
+</html>
+
